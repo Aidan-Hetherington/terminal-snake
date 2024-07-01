@@ -27,7 +27,7 @@ impl GameState {
         let snake = vec![Vec2::xy(0, y_pos), Vec2::xy(1, y_pos), Vec2::xy(2, y_pos)];
         // Set head pos
         let head = Vec2::xy(2, y_pos);
-        // Set food position
+        
         let mut food = Vec2::xy(rand::thread_rng().gen_range(0..dimensions.x), rand::thread_rng().gen_range(0..dimensions.y));
         // If food is in the snake
         while snake.contains(&mut food) {
@@ -43,20 +43,30 @@ impl GameState {
             food: food,
         }
     }
+
+    fn place_food(&self) -> Vec2 {
+        // Set food position
+        let mut food = Vec2::xy(rand::thread_rng().gen_range(0..self.dimensions.x), rand::thread_rng().gen_range(0..self.dimensions.y));
+        // If food is in the snake
+        while self.snake.contains(&mut food) {
+            // Try a new position
+            food = Vec2::xy(rand::thread_rng().gen_range(0..self.dimensions.x), rand::thread_rng().gen_range(0..self.dimensions.y));
+        }
+
+        return food;
+    }
+
+    pub fn update(&self) {
+        
+    }
 }
 
 fn main() -> io::Result<()> {
-    match crossterm::terminal::enable_raw_mode() {
-        Ok(()) => (), // Succeeded in enabling raw mode
-        Err(e) => { // Failed to enable raw mode
-            eprintln!("[Err] Failed to enable raw mode, Quitting")
-        }
-    }
+    crossterm::terminal::enable_raw_mode().expect("[Err] Failed to enable raw mode, quitting"); // Enable raw mode
 
     let mut app = App::default();
     let win_size = app.window().size();
     let state = GameState::new(win_size);
-
     app.run(|app_state: &mut State, window: &mut Window| {
         // `poll()` waits for an `Event` for a given time period
         if poll(Duration::from_millis(500)).unwrap() {
@@ -75,12 +85,7 @@ fn main() -> io::Result<()> {
         }
     });
 
-    match crossterm::terminal::disable_raw_mode() {
-        Ok(()) => (),
-        Err(e) => {
-            eprintln!("[Err] Failed to disable raw mode: you may need to restart your terminal")
-        }
-    }
+    crossterm::terminal::disable_raw_mode().expect("[Err] Failed to disable raw mode, expect wierd terminal behaviour"); // Disable raw mode
 
     // Closed successfully
     Ok(())
