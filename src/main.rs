@@ -11,6 +11,13 @@ use ruscii::terminal::{Color, Style, Window};
 // Randomly place an apple
 use rand::{self, prelude::*};
 
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}
+
 struct GameState {
     pub dimensions: Vec2,
     pub snake: Vec<Vec2>,
@@ -56,7 +63,7 @@ impl GameState {
         return food;
     }
 
-    pub fn update(&self) {
+    pub fn update(&self, dir: Direction) {
         
     }
 }
