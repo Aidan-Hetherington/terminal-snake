@@ -53,26 +53,27 @@ fn main() -> io::Result<()> {
         }
     }
 
-    let app = App::default();
+    let mut app = App::default();
     let win_size = app.window().size();
     let state = GameState::new(win_size);
 
-    // `poll()` waits for an `Event` for a given time period
-    if poll(Duration::from_millis(500))? {
-        // It's guaranteed that the `read()` won't block when the `poll()`
-        // function returns `true`
-        match read()? {
-            Event::Key(event) => {
-                // If q or esccape pressed then quit
-                if event.code == KeyCode::Char('q') {
-                    break;
+    app.run(|app_state: &mut State, window: &mut Window| {
+        // `poll()` waits for an `Event` for a given time period
+        if poll(Duration::from_millis(500)).unwrap() {
+            // It's guaranteed that the `read()` won't block when the `poll()`
+            // function returns `true`
+            match read().unwrap() {
+                Event::Key(event) => {
+                    // If q or esccape pressed then quit
+                    if event.code == KeyCode::Char('q') {
+                    }
+                },
+                _ => {
+                    // Do nothing, no keys were pressed
                 }
-            },
-            _ => {
-                // Do nothing, no keys were pressed
             }
         }
-    }
+    });
 
     match crossterm::terminal::disable_raw_mode() {
         Ok(()) => (),
