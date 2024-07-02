@@ -21,7 +21,6 @@ enum Direction {
 struct GameState {
     pub dimensions: Vec2,
     pub snake: Vec<Vec2>,
-    pub head: Vec2,
     pub score: u32,
     pub food: Vec2
 }
@@ -32,9 +31,8 @@ impl GameState {
         let y_pos = (dimensions.y / 2) + 1;
         // Populate snake array
         let snake = vec![Vec2::xy(0, y_pos), Vec2::xy(1, y_pos), Vec2::xy(2, y_pos)];
-        // Set head pos
-        let head = Vec2::xy(2, y_pos);
         
+        // Place food
         let mut food = Vec2::xy(rand::thread_rng().gen_range(0..dimensions.x), rand::thread_rng().gen_range(0..dimensions.y));
         // If food is in the snake
         while snake.contains(&mut food) {
@@ -45,7 +43,6 @@ impl GameState {
         return GameState {
             dimensions: dimensions,
             snake: snake,
-            head: head,
             score: 0,
             food: food,
         }
@@ -63,8 +60,38 @@ impl GameState {
         return food;
     }
 
-    pub fn update(&self, dir: Direction) {
-        
+    pub fn update(&mut self, dir: Direction) {
+        let new_head = match dir {
+            Direction::Up => {
+                let mut pos = *self.snake.first().expect("[Err] The GameState.snake array should never be empty by the time the update function is called");
+                pos.y += 1;
+                pos
+            }
+            Direction::Down => {
+                let mut pos = *self.snake.first().expect("[Err] The GameState.snake array should never be empty by the time the update function is called");
+                pos.y -= 1;
+                pos
+            },
+            Direction::Right => {
+                let mut pos = *self.snake.first().expect("[Err] The GameState.snake array should never be empty by the time the update function is called");
+                pos.x += 1;
+                pos
+            },
+            Direction::Left => {
+                let mut pos = *self.snake.first().expect("[Err] The GameState.snake array should never be empty by the time the update function is called");
+                pos.x -= 1;
+                pos
+            }
+        };
+        self.snake.insert(0, new_head);
+
+        if self.food == *self.snake.first().expect(
+            "[Err] The GameState.snake array should never be 
+            empty by the time the update function is called") {
+                self.place_food();
+        } else {
+            self.snake.pop();
+        }
     }
 }
 
